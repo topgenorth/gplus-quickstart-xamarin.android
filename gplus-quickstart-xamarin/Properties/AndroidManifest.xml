@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0"
+          package="xamarin.android.gms.plus.sample.quickstart" android:installLocation="auto" >
+  <uses-sdk />
+  <application android:label="gplus-quickstart-xamarin" android:icon="@drawable/ic_launcher" >
+    <meta-data
+      android:name="com.google.android.gms.version"
+      android:value="@integer/google_play_services_version" />
+  </application>
+</manifest>
