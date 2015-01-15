@@ -16,7 +16,9 @@
 -->
 <resources>
 
-  <string name="app_name">Google+ SDK Sample for Xamarin.Android</string>
+  <string name="app_name">Google+ SDK Samples for Xamarin.Android</string>
+  <string name="activity_google_login_example">Google\'s Example</string>
+  
   <string name="circles_title">Visible circles:</string>
   <string name="sign_out_button_name">Sign out</string>
   <string name="revoke_access_button_name">Revoke</string>

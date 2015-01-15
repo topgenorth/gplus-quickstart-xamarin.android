@@ -9,9 +9,9 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: global::Android.Runtime.ResourceDesignerAttribute("gplusquickstartxamarin.Resource", IsApplication=true)]
+[assembly: global::Android.Runtime.ResourceDesignerAttribute("com.xamarin.googleplus.quickstart.Resource", IsApplication=true)]
 
-namespace gplusquickstartxamarin
+namespace com.xamarin.googleplus.quickstart
 {
 	
 	
@@ -1955,14 +1955,17 @@ namespace gplusquickstartxamarin
 			// aapt resource value: 0x7f060018
 			public const int accept = 2131099672;
 			
+			// aapt resource value: 0x7f06003a
+			public const int activity_google_login_example = 2131099706;
+			
 			// aapt resource value: 0x7f060039
 			public const int app_name = 2131099705;
 			
-			// aapt resource value: 0x7f06003a
-			public const int circles_title = 2131099706;
+			// aapt resource value: 0x7f06003b
+			public const int circles_title = 2131099707;
 			
-			// aapt resource value: 0x7f060047
-			public const int close = 2131099719;
+			// aapt resource value: 0x7f060048
+			public const int close = 2131099720;
 			
 			// aapt resource value: 0x7f06001f
 			public const int common_android_wear_notification_needs_update_text = 2131099679;
@@ -2075,41 +2078,41 @@ namespace gplusquickstartxamarin
 			// aapt resource value: 0x7f060005
 			public const int mr_user_route_category_name = 2131099653;
 			
-			// aapt resource value: 0x7f060046
-			public const int play_services_error = 2131099718;
+			// aapt resource value: 0x7f060047
+			public const int play_services_error = 2131099719;
 			
-			// aapt resource value: 0x7f060048
-			public const int profile_picture = 2131099720;
-			
-			// aapt resource value: 0x7f06003c
-			public const int revoke_access_button_name = 2131099708;
-			
-			// aapt resource value: 0x7f06003b
-			public const int sign_out_button_name = 2131099707;
-			
-			// aapt resource value: 0x7f060044
-			public const int signed_in_as = 2131099716;
-			
-			// aapt resource value: 0x7f06003f
-			public const int status_loading = 2131099711;
-			
-			// aapt resource value: 0x7f060042
-			public const int status_revoke_access = 2131099714;
-			
-			// aapt resource value: 0x7f060043
-			public const int status_revoke_access_error = 2131099715;
-			
-			// aapt resource value: 0x7f06003e
-			public const int status_sign_in_error = 2131099710;
+			// aapt resource value: 0x7f060049
+			public const int profile_picture = 2131099721;
 			
 			// aapt resource value: 0x7f06003d
-			public const int status_sign_in_required = 2131099709;
+			public const int revoke_access_button_name = 2131099709;
 			
-			// aapt resource value: 0x7f060041
-			public const int status_signed_out = 2131099713;
+			// aapt resource value: 0x7f06003c
+			public const int sign_out_button_name = 2131099708;
+			
+			// aapt resource value: 0x7f060045
+			public const int signed_in_as = 2131099717;
 			
 			// aapt resource value: 0x7f060040
-			public const int status_signing_in = 2131099712;
+			public const int status_loading = 2131099712;
+			
+			// aapt resource value: 0x7f060043
+			public const int status_revoke_access = 2131099715;
+			
+			// aapt resource value: 0x7f060044
+			public const int status_revoke_access_error = 2131099716;
+			
+			// aapt resource value: 0x7f06003f
+			public const int status_sign_in_error = 2131099711;
+			
+			// aapt resource value: 0x7f06003e
+			public const int status_sign_in_required = 2131099710;
+			
+			// aapt resource value: 0x7f060042
+			public const int status_signed_out = 2131099714;
+			
+			// aapt resource value: 0x7f060041
+			public const int status_signing_in = 2131099713;
 			
 			// aapt resource value: 0x7f060017
 			public const int store_picture_message = 2131099671;
@@ -2117,8 +2120,8 @@ namespace gplusquickstartxamarin
 			// aapt resource value: 0x7f060016
 			public const int store_picture_title = 2131099670;
 			
-			// aapt resource value: 0x7f060045
-			public const int unknown_person = 2131099717;
+			// aapt resource value: 0x7f060046
+			public const int unknown_person = 2131099718;
 			
 			// aapt resource value: 0x7f060038
 			public const int wallet_buy_button_place_holder = 2131099704;
