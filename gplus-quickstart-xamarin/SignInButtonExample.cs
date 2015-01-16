@@ -34,7 +34,7 @@ namespace com.xamarin.googleplus.quickstart
     public class SignInButtonExample : Activity, IGoogleApiClientConnectionCallbacks, IGoogleApiClientOnConnectionFailedListener, IResultCallback
     {
         const int RC_SIGN_IN = 0;
-        static readonly String TAG = "xamarin-android-plus-quickstart";
+        static readonly String TAG = typeof(SignInButtonExample).FullName;
         static readonly String SAVED_PROGRESS = "sign_in_progress";
         ArrayAdapter<string> _circlesAdapter;
         List<string> _circlesList;
