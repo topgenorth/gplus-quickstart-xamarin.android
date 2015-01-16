@@ -31,11 +31,10 @@ using JavaObject = Java.Lang.Object;
 namespace com.xamarin.googleplus.quickstart
 {
     [Activity(Label = "@string/activity_google_login_example")]
-    public class GoogleExample : Activity, IGoogleApiClientConnectionCallbacks, IGoogleApiClientOnConnectionFailedListener, IResultCallback
+    public class SignInButtonExample : Activity, IGoogleApiClientConnectionCallbacks, IGoogleApiClientOnConnectionFailedListener, IResultCallback
     {
-        const int DIALOG_PLAY_SERVICES_ERROR = 0;
+        const int RC_SIGN_IN = 0;
         static readonly String TAG = "xamarin-android-plus-quickstart";
-        static readonly int RC_SIGN_IN = 0;
         static readonly String SAVED_PROGRESS = "sign_in_progress";
         ArrayAdapter<string> _circlesAdapter;
         List<string> _circlesList;
@@ -65,8 +64,8 @@ namespace com.xamarin.googleplus.quickstart
             _signOutButton.Enabled = true;
             _revokeButton.Enabled = true;
 
-            var currentUser = PlusClass.PeopleApi.GetCurrentPerson(_googleApiClient);
-            _status.Text = String.Format("Signed in as {0}.", currentUser.DisplayName);
+            IPerson currentUser = PlusClass.PeopleApi.GetCurrentPerson(_googleApiClient);
+            _status.Text = String.Format(Resources.GetString(Resource.String.signed_in_as), currentUser.DisplayName);
 
             PlusClass.PeopleApi.LoadVisible(_googleApiClient, null).SetResultCallback(this);
 
@@ -100,7 +99,8 @@ namespace com.xamarin.googleplus.quickstart
                 _signInIntent = result.Resolution;
                 _signInError = result.ErrorCode;
 
-                if (_signInProgress == SignInProgressState.SignIn)
+                // We're not already logged in, so try and resolve the error.
+                if (_signInProgress == SignInProgressState.Default)
                 {
                     ResolveSignInError();
                 }
@@ -113,17 +113,17 @@ namespace com.xamarin.googleplus.quickstart
 
         public void OnResult(JavaObject result)
         {
-            var peopleData = result.JavaCast<IPeopleLoadPeopleResult>();
+            IPeopleLoadPeopleResult peopleData = result.JavaCast<IPeopleLoadPeopleResult>();
             if (peopleData.Status.StatusCode == CommonStatusCodes.Success)
             {
                 _circlesList.Clear();
-                var personBuffer = peopleData.PersonBuffer;
+                PersonBuffer personBuffer = peopleData.PersonBuffer;
                 try
                 {
                     int count = personBuffer.Count;
                     for (int i = 0; i < count; i++)
                     {
-                        var person = personBuffer.Get(i).JavaCast<IPerson>();
+                        IPerson person = personBuffer.Get(i).JavaCast<IPerson>();
                         _circlesList.Add(person.DisplayName);
                     }
                     _circlesAdapter.NotifyDataSetChanged();
@@ -139,6 +139,33 @@ namespace com.xamarin.googleplus.quickstart
             }
         }
 
+        protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
+        {
+            switch (requestCode)
+            {
+                case (RC_SIGN_IN):
+                    if (resultCode == Result.Ok)
+                    {
+                        // So, login was successful.
+                        _signInProgress = SignInProgressState.SignIn;
+                    }
+                    else
+                    {
+                        // Login was not successful - typically this means that the user declined the
+                        // permissions for Google Play Services.
+                        _signInProgress = SignInProgressState.StaySignedOut;
+                    }
+                    if (_googleApiClient != null)
+                    {
+                        if (!_googleApiClient.IsConnecting)
+                        {
+                            _googleApiClient.Connect();
+                        }
+                    }
+                    break;
+            }
+        }
+
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
@@ -146,7 +173,8 @@ namespace com.xamarin.googleplus.quickstart
 
             _signInButton = FindViewById<SignInButton>(Resource.Id.sign_in_button);
             _signInButton.Click += delegate{
-                                       _status.Text = "Signing in with Goolge+...";
+                                       _signInProgress = SignInProgressState.Default;
+                                       _status.SetText(Resource.String.status_signing_in);
                                        ResolveSignInError();
                                    };
 
@@ -155,27 +183,30 @@ namespace com.xamarin.googleplus.quickstart
                                         // We clear the default account on sign out so that Google Play
                                         // services will not return an onConnected callback without user
                                         // interaction.
-#pragma warning disable 618
-                                        PlusClass.AccountApi.ClearDefaultAccount(_googleApiClient);
-#pragma warning restore 618
-                                        _googleApiClient.Disconnect();
-                                        _googleApiClient.Connect();
+                                        _signInProgress = SignInProgressState.Default;
+                                        OnSignedOut();
+                                        if (_googleApiClient.IsConnected)
+                                        {
+                                            PlusClass.AccountApi.ClearDefaultAccount(_googleApiClient);
+                                            _googleApiClient.Disconnect();
+                                        }
                                     };
 
             _revokeButton = FindViewById<Button>(Resource.Id.revoke_access_button);
             _revokeButton.Click += delegate{
                                        // After we revoke permissions for the user with a GoogleApiClient
                                        // instance, we must discard it and create a new one.
-#pragma warning disable 618
-                                       PlusClass.AccountApi.ClearDefaultAccount(_googleApiClient);
-#pragma warning restore 618
-                                       // Our sample has caches no user data from Google+, however we
-                                       // would normally register a callback on revokeAccessAndDisconnect
-                                       // to delete user data so that we comply with Google developer
-                                       // policies.
-                                       PlusClass.AccountApi.RevokeAccessAndDisconnect(_googleApiClient);
-                                       _googleApiClient = BuildGoogleApiClient();
-                                       _googleApiClient.Connect();
+                                       _signInProgress = SignInProgressState.Default;
+                                       OnSignedOut();
+                                       if (_googleApiClient.IsConnected)
+                                       {
+                                           PlusClass.AccountApi.ClearDefaultAccount(_googleApiClient);
+                                           // Our sample has caches no user data from Google+, however we
+                                           // would normally register a callback on revokeAccessAndDisconnect
+                                           // to delete user data so that we comply with Google developer
+                                           // policies.
+                                           PlusClass.AccountApi.RevokeAccessAndDisconnect(_googleApiClient);
+                                       }
                                    };
 
             _status = FindViewById<TextView>(Resource.Id.sign_in_status);
@@ -211,46 +242,13 @@ namespace com.xamarin.googleplus.quickstart
             }
         }
 
-        protected override Dialog OnCreateDialog(int id)
-        {
-            Dialog d;
-            switch (id)
-            {
-                case DIALOG_PLAY_SERVICES_ERROR:
-                    if (GooglePlayServicesUtil.IsUserRecoverableError(_signInError))
-                    {
-                        d = GooglePlayServicesUtil.GetErrorDialog(_signInError, this, RC_SIGN_IN);
-                        d.CancelEvent += delegate{
-                                             Log.Error(TAG, "Google Play services resolution cancelled.");
-                                             _signInProgress = SignInProgressState.Default;
-                                             _status.Text = "Signed Out";
-                                         };
-                        return d;
-                    }
-                    d = new AlertDialog.Builder(this)
-                        .SetMessage("Google Play services is not available. This application...")
-                        .SetPositiveButton("Close", delegate{
-                                                        Log.Error(TAG, "Google Play services error cold not resolved: {0}", _signInError);
-                                                        _signInProgress = SignInProgressState.Default;
-                                                        _status.Text = "Signed out";
-                                                    })
-                        .Create();
-                    break;
-                default:
-                    d = base.OnCreateDialog(id);
-                    break;
-            }
-
-            return d;
-        }
-
         void OnSignedOut()
         {
             _signOutButton.Enabled = false;
             _signInButton.Enabled = true;
             _revokeButton.Enabled = false;
 
-            _status.Text = "Signed out";
+            _status.SetText(Resource.String.status_signed_out);
             _circlesList.Clear();
             _circlesAdapter.NotifyDataSetChanged();
         }
@@ -284,7 +282,25 @@ namespace com.xamarin.googleplus.quickstart
             }
             else
             {
-                ShowDialog(DIALOG_PLAY_SERVICES_ERROR);
+                Dialog errorDialog;
+                if (GooglePlayServicesUtil.IsUserRecoverableError(_signInError))
+                {
+                    errorDialog = GooglePlayServicesUtil.GetErrorDialog(_signInError, this, RC_SIGN_IN);
+                }
+                else
+                {
+                    errorDialog = new AlertDialog.Builder(this)
+                        .SetMessage("Google Play services is not available. This application...")
+                        .SetPositiveButton("Close", delegate{
+                                                        Log.Error(TAG, "Google Play services error cold not resolved: {0}", _signInError);
+                                                        _signInProgress = SignInProgressState.Default;
+                                                        _status.SetText(Resource.String.status_signed_out);
+                                                        OnSignedOut();
+                                                    })
+                        .Create();
+                }
+                ErrorDialogFragment errorFrag = ErrorDialogFragment.NewInstance(errorDialog);
+                errorFrag.Show(FragmentManager, "google_play_services");
             }
         }
 
@@ -299,32 +315,33 @@ namespace com.xamarin.googleplus.quickstart
                 .AddScope(PlusClass.ScopePlusLogin)
                 .Build();
         }
-    }
 
-    /// <summary>
-    ///   This value represents if the user has clicked sign in.
-    /// </summary>
-    enum SignInProgressState
-    {
         /// <summary>
-        ///   The default state of the application before the user
-        ///   has clicked 'sign in', or after they have clicked
-        ///   'sign out'.  In this state we will not attempt to
-        ///   resolve sign in errors and so will display our
+        ///   This value represents the state of our Google sign in.
         /// </summary>
-        Default,
-        /// <summary>
-        ///   This state indicates that the user has clicked 'sign
-        ///   in', so resolve successive errors preventing sign in
-        ///   until the user has successfully authorized an account
-        ///   for our app.
-        /// </summary>
-        SignIn,
-        /// <summary>
-        ///   This state indicates that we have started an intent to
-        ///   resolve an error, and so we should not start further
-        ///   intents until the current intent completes.
-        /// </summary>
-        InProgress
+        enum SignInProgressState
+        {
+            /// <summary>
+            ///   The default state of the application before the user
+            ///   has clicked 'sign in', or after they have clicked
+            ///   'sign out'.  In this state we will not attempt to
+            ///   resolve sign in errors and so will display our
+            /// </summary>
+            Default,
+            /// <summary>
+            ///   This state indicates that the user has clicked 'sign
+            ///   in', so resolve successive errors preventing sign in
+            ///   until the user has successfully authorized an account
+            ///   for our app.
+            /// </summary>
+            SignIn,
+            /// <summary>
+            ///   This state indicates that we have started an intent to
+            ///   resolve an error, and so we should not start further
+            ///   intents until the current intent completes.
+            /// </summary>
+            InProgress,
+            StaySignedOut
+        }
     }
 }
