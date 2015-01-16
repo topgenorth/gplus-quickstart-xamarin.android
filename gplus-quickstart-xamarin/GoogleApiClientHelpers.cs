@@ -1,5 +1,7 @@
 using Android.App;
 using Android.Gms.Common;
+using Android.Gms.Common.Apis;
+using Android.Gms.Plus;
 
 namespace com.xamarin.googleplus.quickstart
 {
@@ -24,6 +26,16 @@ namespace com.xamarin.googleplus.quickstart
             ErrorDialogFragment errorFrag = ErrorDialogFragment.NewInstance(dialog);
             errorFrag.Show(activity.FragmentManager, GPS_ERROR_DIALOG_FRAGMENT_TAG);
             return false;
+        }
+
+        public static IGoogleApiClient BuildGoogleApiClient(Activity activity)
+        {
+            IGoogleApiClientConnectionCallbacks callbacks = (IGoogleApiClientConnectionCallbacks)activity;
+            IGoogleApiClientOnConnectionFailedListener errorCallbacks = (IGoogleApiClientOnConnectionFailedListener)activity;
+            return new GoogleApiClientBuilder(activity, callbacks, errorCallbacks)
+                .AddApi(PlusClass.Api, new PlusClass.PlusOptions.Builder().Build())
+                .AddScope(PlusClass.ScopePlusLogin)
+                .Build();
         }
     }
 }
