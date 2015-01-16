@@ -221,7 +221,7 @@ namespace com.xamarin.googleplus.quickstart
                 _signInProgress = (SignInProgressState)bundle.GetInt(SAVED_PROGRESS, (int)SignInProgressState.Default);
             }
 
-            _googleApiClient = BuildGoogleApiClient();
+            _googleApiClient = this.BuildGoogleApiClient();
         }
 
         protected override void OnStart()
@@ -304,17 +304,17 @@ namespace com.xamarin.googleplus.quickstart
             }
         }
 
-        IGoogleApiClient BuildGoogleApiClient()
-        {
-            // When we build the GoogleApiClient we specify where connected and
-            // connection failed callbacks should be returned, which Google APIs our
-            // app uses and which OAuth 2.0 scopes our app requests.
-
-            return new GoogleApiClientBuilder(this, this, this)
-                .AddApi(PlusClass.Api, PlusClass.PlusOptions.InvokeBuilder().Build())
-                .AddScope(PlusClass.ScopePlusLogin)
-                .Build();
-        }
+//        IGoogleApiClient BuildGoogleApiClient()
+//        {
+//            // When we build the GoogleApiClient we specify where connected and
+//            // connection failed callbacks should be returned, which Google APIs our
+//            // app uses and which OAuth 2.0 scopes our app requests.
+//
+//            return new GoogleApiClientBuilder(this, this, this)
+//                .AddApi(PlusClass.Api, PlusClass.PlusOptions.InvokeBuilder().Build())
+//                .AddScope(PlusClass.ScopePlusLogin)
+//                .Build();
+//        }
 
         /// <summary>
         ///   This value represents the state of our Google sign in.

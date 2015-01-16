@@ -1651,6 +1651,9 @@ namespace com.xamarin.googleplus.quickstart
 			// aapt resource value: 0x7f0b000a
 			public const int normal = 2131427338;
 			
+			// aapt resource value: 0x7f0b005f
+			public const int play_services_error_textview = 2131427423;
+			
 			// aapt resource value: 0x7f0b0025
 			public const int production = 2131427365;
 			

@@ -28,7 +28,7 @@ namespace com.xamarin.googleplus.quickstart
             return false;
         }
 
-        public static IGoogleApiClient BuildGoogleApiClient(Activity activity)
+        public static IGoogleApiClient BuildGoogleApiClient(this Activity activity)
         {
             IGoogleApiClientConnectionCallbacks callbacks = (IGoogleApiClientConnectionCallbacks)activity;
             IGoogleApiClientOnConnectionFailedListener errorCallbacks = (IGoogleApiClientOnConnectionFailedListener)activity;
