@@ -30,7 +30,7 @@ using JavaObject = Java.Lang.Object;
 
 namespace com.xamarin.googleplus.quickstart
 {
-	[Activity(Label = "@string/activity_google_login_example")]
+	[Activity(Label = "@string/activity_google_login_example", MainLauncher = true, Icon = "@drawable/ic_launcher")]
 	public class GooglePlayServicesActivity : Activity, IGoogleApiClientConnectionCallbacks, IGoogleApiClientOnConnectionFailedListener, IResultCallback
 	{
 		const int RC_SIGN_IN = 0;
