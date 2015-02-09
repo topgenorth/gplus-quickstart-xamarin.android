@@ -1564,8 +1564,8 @@ namespace com.xamarin.googleplus.quickstart
 			// aapt resource value: 0x7f0c0022
 			public const int disableHome = 2131492898;
 			
-			// aapt resource value: 0x7f0c0059
-			public const int display_name = 2131492953;
+			// aapt resource value: 0x7f0c005a
+			public const int display_name = 2131492954;
 			
 			// aapt resource value: 0x7f0c001c
 			public const int donate_with_google = 2131492892;
@@ -1621,20 +1621,20 @@ namespace com.xamarin.googleplus.quickstart
 			// aapt resource value: 0x7f0c0017
 			public const int match_parent = 2131492887;
 			
-			// aapt resource value: 0x7f0c005d
-			public const int media_route_control_frame = 2131492957;
-			
 			// aapt resource value: 0x7f0c005e
-			public const int media_route_disconnect_button = 2131492958;
+			public const int media_route_control_frame = 2131492958;
 			
-			// aapt resource value: 0x7f0c005a
-			public const int media_route_list = 2131492954;
+			// aapt resource value: 0x7f0c005f
+			public const int media_route_disconnect_button = 2131492959;
 			
 			// aapt resource value: 0x7f0c005b
-			public const int media_route_volume_layout = 2131492955;
+			public const int media_route_list = 2131492955;
 			
 			// aapt resource value: 0x7f0c005c
-			public const int media_route_volume_slider = 2131492956;
+			public const int media_route_volume_layout = 2131492956;
+			
+			// aapt resource value: 0x7f0c005d
+			public const int media_route_volume_slider = 2131492957;
 			
 			// aapt resource value: 0x7f0c002a
 			public const int middle = 2131492906;
@@ -1651,8 +1651,8 @@ namespace com.xamarin.googleplus.quickstart
 			// aapt resource value: 0x7f0c000d
 			public const int normal = 2131492877;
 			
-			// aapt resource value: 0x7f0c005f
-			public const int play_services_error_textview = 2131492959;
+			// aapt resource value: 0x7f0c0060
+			public const int play_services_error_textview = 2131492960;
 			
 			// aapt resource value: 0x7f0c0012
 			public const int production = 2131492882;
@@ -1725,6 +1725,9 @@ namespace com.xamarin.googleplus.quickstart
 			
 			// aapt resource value: 0x7f0c0056
 			public const int sign_in_status = 2131492950;
+			
+			// aapt resource value: 0x7f0c0059
+			public const int sign_in_xam_auth = 2131492953;
 			
 			// aapt resource value: 0x7f0c0054
 			public const int sign_out_button = 2131492948;

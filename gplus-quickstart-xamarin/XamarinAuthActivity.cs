@@ -19,8 +19,7 @@ namespace com.xamarin.googleplus.quickstart
 		protected override void OnCreate(Bundle bundle)
 		{
 			base.OnCreate(bundle);
-
-			// Create your application here
+			SetContentView(Resource.Layout.activity_xamarin_auth);
 		}
 	}
 }
