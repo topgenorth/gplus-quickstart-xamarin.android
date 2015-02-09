@@ -11,7 +11,7 @@ namespace com.xamarin.googleplus.quickstart
     public class MainActivity : ListActivity
     {
         static readonly string TAG = typeof(MainActivity).FullName;
-        static readonly string[] _examples = { "Google+ Sign In Button 1", "Account Picker" };
+        static readonly string[] _examples = { "Google Play Services", "Xamarin.Auth" };
         ArrayAdapter<string> _menuAdapter;
 
         protected override void OnCreate(Bundle bundle)
@@ -26,7 +26,7 @@ namespace com.xamarin.googleplus.quickstart
             else
             {
                 Toast.MakeText(this, "Google Play Services is not available on this device. Please install and restart.", ToastLength.Short).Show();
-                _menuAdapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleListItem1, new string[0]);
+                _menuAdapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleListItem2, new string[0]);
             }
 
             ListAdapter = _menuAdapter;
@@ -43,7 +43,7 @@ namespace com.xamarin.googleplus.quickstart
                     break;
 
                 case 1:
-                    StartActivity(new Intent(this, typeof(AccountPickerExample)));
+					StartActivity(new Intent(this, typeof(XamarinAuthActivity)));
                     break;
 
                 default:

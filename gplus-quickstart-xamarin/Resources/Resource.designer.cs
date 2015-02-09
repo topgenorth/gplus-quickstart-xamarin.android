@@ -1961,11 +1961,11 @@ namespace com.xamarin.googleplus.quickstart
 			// aapt resource value: 0x7f070002
 			public const int accept = 2131165186;
 			
-			// aapt resource value: 0x7f07003b
-			public const int activity_account_picker_example = 2131165243;
-			
 			// aapt resource value: 0x7f07003a
 			public const int activity_google_login_example = 2131165242;
+			
+			// aapt resource value: 0x7f07003b
+			public const int activity_xamarin_auth_example = 2131165243;
 			
 			// aapt resource value: 0x7f070039
 			public const int app_name = 2131165241;
