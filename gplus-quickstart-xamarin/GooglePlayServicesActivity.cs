@@ -31,10 +31,10 @@ using JavaObject = Java.Lang.Object;
 namespace com.xamarin.googleplus.quickstart
 {
 	[Activity(Label = "@string/activity_google_login_example")]
-	public class SignInButtonExample : Activity, IGoogleApiClientConnectionCallbacks, IGoogleApiClientOnConnectionFailedListener, IResultCallback
+	public class GooglePlayServicesActivity : Activity, IGoogleApiClientConnectionCallbacks, IGoogleApiClientOnConnectionFailedListener, IResultCallback
 	{
 		const int RC_SIGN_IN = 0;
-		static readonly String TAG = typeof(SignInButtonExample).FullName;
+		static readonly String TAG = typeof(GooglePlayServicesActivity).FullName;
 		static readonly String SAVED_PROGRESS = "sign_in_progress";
 		ArrayAdapter<string> _circlesAdapter;
 		List<string> _circlesList;
@@ -173,7 +173,7 @@ namespace com.xamarin.googleplus.quickstart
 		protected override void OnCreate(Bundle bundle)
 		{
 			base.OnCreate(bundle);
-			SetContentView(Resource.Layout.Main);
+			SetContentView(Resource.Layout.activity_google_play_services);
 
 			_signInButton = FindViewById<SignInButton>(Resource.Id.sign_in_button);
 			_signOutButton = FindViewById<Button>(Resource.Id.sign_out_button);

@@ -39,7 +39,7 @@ namespace com.xamarin.googleplus.quickstart
             switch (position)
             {
                 case 0:
-                    StartActivity(new Intent(this, typeof(SignInButtonExample)));
+                    StartActivity(new Intent(this, typeof(GooglePlayServicesActivity)));
                     break;
 
                 case 1:
