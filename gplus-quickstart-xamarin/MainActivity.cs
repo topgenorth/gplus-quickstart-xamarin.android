@@ -25,7 +25,7 @@ namespace com.xamarin.googleplus.quickstart
             }
             else
             {
-                Toast.MakeText(this, "Google Play Services is not available on this device. Please install and restart", ToastLength.Short).Show();
+                Toast.MakeText(this, "Google Play Services is not available on this device. Please install and restart.", ToastLength.Short).Show();
                 _menuAdapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleListItem1, new string[0]);
             }
 
