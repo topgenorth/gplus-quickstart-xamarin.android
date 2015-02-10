@@ -25,47 +25,38 @@ namespace com.xamarin.googleplus.quickstart
 		ArrayAdapter<string> _circlesAdapter;
 		List<string> _circlesList;
 		ListView _circlesListView;
-		IGoogleApiClient _googleApiClient;
 		Button _revokeButton;
 		SignInButton _signInButton;
-		/// <summary>
-		///   Used to store the error code most recently returned by Google Play services
-		///   until the user clicks 'sign in'.
-		/// </summary>
-		int _signInError;
-		/// <summary>
-		///   Used to store the PendingIntent most recently returned by Google Play
-		///   services until the user clicks 'sign in'.
-		/// </summary>
-		PendingIntent _signInIntent;
-		SignInProgressState _signInProgress;
 		Button _signOutButton;
 		TextView _status;
+
+		IGoogleApiClient _googleApiClient;
+		bool _signInClicked = false;
+		bool _intentInProgress = false;
+		bool _getFriends = true;
+		ConnectionResult _connectionResult;
 
 		public void OnConnected(Bundle connectionHint)
 		{
 			Log.Info(TAG, "OnConnected");
 
-			_signInButton.Enabled = true;
+			_signInButton.Enabled = false;
 			_signOutButton.Enabled = true;
 			_revokeButton.Enabled = true;
+			_signInClicked = false;
 
-			if(_signInProgress == SignInProgressState.GetAccount)
+			if(!this.IsLoggedInToGoogle())
 			{
 				string account = PlusClass.AccountApi.GetAccountName(_googleApiClient);
-
 				this.SetGoogleAccount(account);
-				_signInProgress = SignInProgressState.SignIn;
+				_getFriends = true;
 			}
 
-			IPerson currentUser = PlusClass.PeopleApi.GetCurrentPerson(_googleApiClient);
-			PlusClass.PeopleApi.LoadVisible(_googleApiClient, null).SetResultCallback(new DisplayVisibleFriendsResultCallback(this));
-			_signInProgress = SignInProgressState.Default;
-
-			RunOnUiThread(() => {
-					_status.Text = String.Format(Resources.GetString(Resource.String.signed_in_as), currentUser.DisplayName);
-				});
-
+			if(_getFriends)
+			{
+				GetFriends();
+				_getFriends = false;
+			}
 		}
 
 		public void OnConnectionSuspended(int cause)
@@ -80,30 +71,15 @@ namespace com.xamarin.googleplus.quickstart
 		public void OnConnectionFailed(ConnectionResult result)
 		{
 			Log.Info(TAG, "OnConnectionFailed: ConnectionResult.ErrorCode = {0}", result.ErrorCode);
+			_connectionResult = result;
 
-			if(result.ErrorCode == ConnectionResult.ApiUnavailable)
+			if(_signInClicked)
 			{
-				// An API requested for GoogleApiClient is not available. The device's current
-				// configuration might not be supported with the requested API or a required component
-				// may not be installed, such as the Android Wear application. You may need to use a
-				// second GoogleApiClient to manage the application's optional APIs.
-			} else if(_signInProgress != SignInProgressState.InProgress)
+				ResolveSignInError();
+			} else
 			{
-				// We do not have an intent in progress so we should store the latest
-				// error resolution intent for use when the sign in button is clicked.
-				_signInIntent = result.Resolution;
-				_signInError = result.ErrorCode;
-
-				// We're not already logged in, so try and resolve the error.
-				if(_signInProgress == SignInProgressState.Default)
-				{
-					ResolveSignInError();
-				}
+				OnSignedOut();
 			}
-
-			// In this sample we consider the user signed out whenever they do not have
-			// a connection to Google Play services.
-			OnSignedOut();
 		}
 
 		public void DisplayFriends(IList<string> names)
@@ -121,32 +97,27 @@ namespace com.xamarin.googleplus.quickstart
 			switch(requestCode)
 			{
 				case (SIGN_IN_WITH_GOOGLE_PLUS):
+					_intentInProgress = false;
 					if(resultCode == Result.Ok)
 					{
-						// So, login was successful.
-						_signInProgress = SignInProgressState.GetAccount;
+						_signInClicked = false;
 						Log.Debug(TAG, "Sign in succeeded");
-						if(_googleApiClient != null)
+						if(!_googleApiClient.IsConnecting)
 						{
-							if(!_googleApiClient.IsConnecting)
-							{
-								_googleApiClient.Connect();
-							}
+							_getFriends = true;
+							_googleApiClient.Connect();
 						}
 					} else
 					{
-						// Login was not successful - typically this means that the user declined the
-						// permissions for Google Play Services.
-						_signInProgress = SignInProgressState.StaySignedOut;
 						OnSignedOut();
 						Log.Debug(TAG, "Sign in cancelled.");
 					}
 					break;
 				default:
-
 					OnSignedOut();
 					break;
 			}
+
 		}
 
 		protected override void OnCreate(Bundle bundle)
@@ -160,28 +131,13 @@ namespace com.xamarin.googleplus.quickstart
 			_status = FindViewById<TextView>(Resource.Id.sign_in_status);
 			_circlesListView = FindViewById<ListView>(Resource.Id.circles_list);
 
-
 			_signInButton.Click += delegate {
-				_signInProgress = SignInProgressState.Default;
 				_status.SetText(Resource.String.status_signing_in);
-
-				if(_signInProgress == SignInProgressState.Default)
-				{
-					if(_signInIntent == null)
-					{
-						_googleApiClient.Connect();
-					} else
-					{
-						ResolveSignInError();
-					}
-				}
+				_signInClicked = true;
+				ResolveSignInError();
 			};
 
 			_signOutButton.Click += delegate {
-				// We clear the default account on sign out so that Google Play
-				// services will not return an onConnected callback without user
-				// interaction.
-				_signInProgress = SignInProgressState.Default;
 				OnSignedOut();
 				if(_googleApiClient.IsConnected)
 				{
@@ -194,9 +150,7 @@ namespace com.xamarin.googleplus.quickstart
 			};
 
 			_revokeButton.Click += delegate {
-				// After we revoke permissions for the user with a GoogleApiClient
-				// instance, we must discard it and create a new one.
-				_signInProgress = SignInProgressState.Default;
+
 				OnSignedOut();
 				if(_googleApiClient.IsConnected)
 				{
@@ -207,31 +161,22 @@ namespace com.xamarin.googleplus.quickstart
 					PlusClass.AccountApi
 						.RevokeAccessAndDisconnect(_googleApiClient)
 						.SetResultCallback(new GoogleAccountApiAccessRevokedResultCallback(this));
+
+					_googleApiClient.Disconnect();
+					_googleApiClient.Connect();
+
 				}
 			};
 
-
 			DisplayFriends(new List<string>());
-
-			if(bundle != null)
-			{
-				_signInProgress = (SignInProgressState)bundle.GetInt(SAVED_PROGRESS, (int)SignInProgressState.Default);
-			} else
-			{
-				_signInProgress = SignInProgressState.Default;
-			}
-
 			_googleApiClient = this.BuildGoogleApiClient();
 		}
 
 		protected override void OnStart()
 		{
 			base.OnStart();
-			if(this.IsLoggedInToGoogle())
-			{
-				Log.Debug(TAG, "OnStart : trying to connect.");
-				_googleApiClient.Connect();
-			}
+			Log.Debug(TAG, "OnStart : trying to connect.");
+			_googleApiClient.Connect();
 		}
 
 		protected override void OnStop()
@@ -252,49 +197,48 @@ namespace com.xamarin.googleplus.quickstart
 			_revokeButton.Enabled = false;
 			_status.SetText(Resource.String.status_signed_out);
 
-			DisplayFriends(new List<string>());
+			_signInClicked = false;
+			_getFriends = false;
+			_intentInProgress = false;
 			this.RemoveGoogleAccount();
+
+			DisplayFriends(new List<string>());
 		}
 
 		void ResolveSignInError()
 		{
-			if(_signInIntent != null)
+			if(_connectionResult.HasResolution)
 			{
-				// We have an intent which will allow our user to sign in or
-				// resolve an error.  For example if the user needs to
-				// select an account to sign in with, or if they need to consent
-				// to the permissions your app is requesting.
-
 				try
 				{
-					// Send the pending intent that we stored on the most recent
-					// OnConnectionFailed callback.  This will allow the user to
-					// resolve the error currently preventing our connection to
-					// Google Play services.
-					_signInProgress = SignInProgressState.InProgress;
-					StartIntentSenderForResult(_signInIntent.IntentSender, SIGN_IN_WITH_GOOGLE_PLUS, null, 0, 0, 0);
-				} catch(IntentSender.SendIntentException e)
-				{
-					Log.Info(TAG, "Sign in intent could not be sent: " + e.LocalizedMessage);
-					// The intent was canceled before it was sent.  Attempt to connect to
-					// get an updated ConnectionResult.
-					_signInProgress = SignInProgressState.SignIn;
-					_googleApiClient.Connect();
+					_intentInProgress = true;
+					_getFriends = true;
+					StartIntentSenderForResult(_connectionResult.Resolution.IntentSender, SIGN_IN_WITH_GOOGLE_PLUS, null, 0, 0, 0);
 				}
-			} else
+				catch (IntentSender.SendIntentException e)
+				{
+					// The Intent was canceled before it was sent. Return to the default state
+					// and attempt to connect to get an updated ConnectionResult
+					_intentInProgress = false;
+					_getFriends = false;
+				}
+			}
+			else
 			{
 				Dialog errorDialog;
-				if(GooglePlayServicesUtil.IsUserRecoverableError(_signInError))
+				int errorCode = _connectionResult.ErrorCode;
+				if(GooglePlayServicesUtil.IsUserRecoverableError(errorCode))
 				{
-					errorDialog = GooglePlayServicesUtil.GetErrorDialog(_signInError, this, SIGN_IN_WITH_GOOGLE_PLUS);
+					errorDialog = GooglePlayServicesUtil.GetErrorDialog(errorCode, this, SIGN_IN_WITH_GOOGLE_PLUS);
 				} else
 				{
 					errorDialog = new AlertDialog.Builder(this)
                         .SetMessage("Google Play services is not available. Please install Google Play services and try again.")
                         .SetPositiveButton("Close", delegate {
-							Log.Error(TAG, "Google Play services error could not resolved error {0}", _signInError);
-							_signInProgress = SignInProgressState.Default;
-							_status.SetText(Resource.String.status_signed_out);
+						Log.Error(TAG, "Google Play services error could not resolved error {0}", errorCode);
+						_intentInProgress = false;
+						_signInClicked = false;
+						_getFriends = false;
 							OnSignedOut();
 						})
                         .Create();
@@ -304,37 +248,14 @@ namespace com.xamarin.googleplus.quickstart
 			}
 		}
 
-		/// <summary>
-		///   This value represents the state of our Google sign in.
-		/// </summary>
-		enum SignInProgressState
+		void GetFriends()
 		{
-			/// <summary>
-			///   The default state of the application before the user
-			///   has clicked 'sign in', or after they have clicked
-			///   'sign out'.  In this state we will not attempt to
-			///   resolve sign in errors.
-			/// </summary>
-			Default,
-			/// <summary>
-			///   This state indicates that the user has clicked 'sign
-			///   in', so resolve successive errors preventing sign in
-			///   until the user has successfully authorized an account
-			///   for our app.
-			/// </summary>
-			SignIn,
-			/// <summary>
-			///   This state indicates that we have started an intent to
-			///   resolve an error, and so we should not start further
-			///   intents until the current intent completes.
-			/// </summary>
-			InProgress,
-			/// <summary>
-			/// This state indicates that we've logged in and need to 
-			/// retrieve the user account that we've logged in as.
-			/// </summary>
-			GetAccount,
-			StaySignedOut
+			IPerson currentUser = PlusClass.PeopleApi.GetCurrentPerson(_googleApiClient);
+			PlusClass.PeopleApi.LoadVisible(_googleApiClient, null).SetResultCallback(new DisplayVisibleFriendsResultCallback(this));
+			RunOnUiThread(() =>  {
+				_status.Text = String.Format(Resources.GetString(Resource.String.signed_in_as), currentUser.DisplayName);
+			});
+			_getFriends = false;
 		}
 	}
 }
