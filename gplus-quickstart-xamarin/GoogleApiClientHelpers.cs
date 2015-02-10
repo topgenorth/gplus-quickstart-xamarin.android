@@ -15,7 +15,6 @@ namespace com.xamarin.googleplus.quickstart
 
 		static readonly string ACCOUNT_NAME = "google_account_name";
 		static  string _currentEmail;
-		static bool _isLoggedIn = false;
 
         public static bool IsGooglePlayServicesInstalled(this Activity activity)
         {

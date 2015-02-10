@@ -33,7 +33,7 @@ namespace com.xamarin.googleplus.quickstart
 		IGoogleApiClient _googleApiClient;
 		bool _signInClicked = false;
 		bool _intentInProgress = false;
-		bool _getFriends = true;
+		bool _displayUserInformation = true;
 		ConnectionResult _connectionResult;
 
 		public void OnConnected(Bundle connectionHint)
@@ -49,13 +49,13 @@ namespace com.xamarin.googleplus.quickstart
 			{
 				string account = PlusClass.AccountApi.GetAccountName(_googleApiClient);
 				this.SetGoogleAccount(account);
-				_getFriends = true;
+				_displayUserInformation = true;
 			}
 
-			if(_getFriends)
+			if(_displayUserInformation)
 			{
-				GetFriends();
-				_getFriends = false;
+				DisplayUserInformation();
+				_displayUserInformation = false;
 			}
 		}
 
@@ -104,7 +104,7 @@ namespace com.xamarin.googleplus.quickstart
 						Log.Debug(TAG, "Sign in succeeded");
 						if(!_googleApiClient.IsConnecting)
 						{
-							_getFriends = true;
+							_displayUserInformation = true;
 							_googleApiClient.Connect();
 						}
 					} else
@@ -141,22 +141,15 @@ namespace com.xamarin.googleplus.quickstart
 				OnSignedOut();
 				if(_googleApiClient.IsConnected)
 				{
-					#pragma warning disable 618
-					PlusClass.AccountApi.ClearDefaultAccount(_googleApiClient);
-					#pragma warning restore 618
-					_googleApiClient.Disconnect();
-					_googleApiClient.Connect();
+					_googleApiClient.ClearDefaultAccountAndReconnect();
 				}
 			};
 
 			_revokeButton.Click += delegate {
-
 				OnSignedOut();
 				if(_googleApiClient.IsConnected)
 				{
-					#pragma warning disable 618
-					PlusClass.AccountApi.ClearDefaultAccount(_googleApiClient);
-					#pragma warning restore 618
+					_googleApiClient.ClearDefaultAccountAndReconnect();
 
 					PlusClass.AccountApi
 						.RevokeAccessAndDisconnect(_googleApiClient)
@@ -198,7 +191,7 @@ namespace com.xamarin.googleplus.quickstart
 			_status.SetText(Resource.String.status_signed_out);
 
 			_signInClicked = false;
-			_getFriends = false;
+			_displayUserInformation = false;
 			_intentInProgress = false;
 			this.RemoveGoogleAccount();
 
@@ -212,18 +205,16 @@ namespace com.xamarin.googleplus.quickstart
 				try
 				{
 					_intentInProgress = true;
-					_getFriends = true;
+					_displayUserInformation = true;
 					StartIntentSenderForResult(_connectionResult.Resolution.IntentSender, SIGN_IN_WITH_GOOGLE_PLUS, null, 0, 0, 0);
-				}
-				catch (IntentSender.SendIntentException e)
+				} catch(IntentSender.SendIntentException e)
 				{
 					// The Intent was canceled before it was sent. Return to the default state
 					// and attempt to connect to get an updated ConnectionResult
 					_intentInProgress = false;
-					_getFriends = false;
+					_displayUserInformation = false;
 				}
-			}
-			else
+			} else
 			{
 				Dialog errorDialog;
 				int errorCode = _connectionResult.ErrorCode;
@@ -235,10 +226,10 @@ namespace com.xamarin.googleplus.quickstart
 					errorDialog = new AlertDialog.Builder(this)
                         .SetMessage("Google Play services is not available. Please install Google Play services and try again.")
                         .SetPositiveButton("Close", delegate {
-						Log.Error(TAG, "Google Play services error could not resolved error {0}", errorCode);
-						_intentInProgress = false;
-						_signInClicked = false;
-						_getFriends = false;
+							Log.Error(TAG, "Google Play services error could not resolved error {0}.", errorCode);
+							_intentInProgress = false;
+							_signInClicked = false;
+							_displayUserInformation = false;
 							OnSignedOut();
 						})
                         .Create();
@@ -248,14 +239,16 @@ namespace com.xamarin.googleplus.quickstart
 			}
 		}
 
-		void GetFriends()
+		void DisplayUserInformation()
 		{
+			string account = this.GetGoogleAccount();
 			IPerson currentUser = PlusClass.PeopleApi.GetCurrentPerson(_googleApiClient);
-			PlusClass.PeopleApi.LoadVisible(_googleApiClient, null).SetResultCallback(new DisplayVisibleFriendsResultCallback(this));
-			RunOnUiThread(() =>  {
-				_status.Text = String.Format(Resources.GetString(Resource.String.signed_in_as), currentUser.DisplayName);
-			});
-			_getFriends = false;
+			_status.Text = String.Format(Resources.GetString(Resource.String.signed_in_as), currentUser.DisplayName, account);
+
+			PlusClass.PeopleApi.LoadVisible(_googleApiClient, null)
+				.SetResultCallback(new DisplayVisibleFriendsResultCallback(this));
+
+			_displayUserInformation = false;
 		}
 	}
 }
