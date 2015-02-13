@@ -36,90 +36,6 @@ namespace com.xamarin.googleplus.quickstart
 		bool _displayUserInformation = true;
 		ConnectionResult _connectionResult;
 
-		public void OnConnected(Bundle connectionHint)
-		{
-			Log.Info(TAG, "OnConnected");
-
-			_signInButton.Enabled = false;
-			_signOutButton.Enabled = true;
-			_revokeButton.Enabled = true;
-			_signInClicked = false;
-
-			if(!this.IsLoggedInToGoogle())
-			{
-				string account = PlusClass.AccountApi.GetAccountName(_googleApiClient);
-				this.SetGoogleAccount(account);
-				_displayUserInformation = true;
-			}
-
-			if(_displayUserInformation)
-			{
-				DisplayUserInformation();
-				_displayUserInformation = false;
-			}
-		}
-
-		public void OnConnectionSuspended(int cause)
-		{
-			// The connection to Google Play services was lost for some reason.
-			// We call connect() to attempt to re-establish the connection or get a
-			// ConnectionResult that we can attempt to resolve.
-			Log.Debug(TAG, "OnSuspend - trying to reconnect.");
-			_googleApiClient.Connect();
-		}
-
-		public void OnConnectionFailed(ConnectionResult result)
-		{
-			Log.Info(TAG, "OnConnectionFailed: ConnectionResult.ErrorCode = {0}", result.ErrorCode);
-			_connectionResult = result;
-
-			if(_signInClicked)
-			{
-				ResolveSignInError();
-			} else
-			{
-				OnSignedOut();
-			}
-		}
-
-		public void DisplayFriends(IList<string> names)
-		{
-			_circlesList = names.ToList();
-			Log.Debug(TAG, "Updating the Circles list with " + _circlesList.Count + " people.");
-			RunOnUiThread(() => {
-					_circlesAdapter = new ArrayAdapter<string>(this, Resource.Layout.CircleMember, _circlesList);
-					_circlesListView.Adapter = _circlesAdapter;
-				});
-		}
-
-		protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
-		{
-			switch(requestCode)
-			{
-				case (SIGN_IN_WITH_GOOGLE_PLUS):
-					_intentInProgress = false;
-					if(resultCode == Result.Ok)
-					{
-						_signInClicked = false;
-						Log.Debug(TAG, "Sign in succeeded");
-						if(!_googleApiClient.IsConnecting)
-						{
-							_displayUserInformation = true;
-							_googleApiClient.Connect();
-						}
-					} else
-					{
-						OnSignedOut();
-						Log.Debug(TAG, "Sign in cancelled.");
-					}
-					break;
-				default:
-					OnSignedOut();
-					break;
-			}
-
-		}
-
 		protected override void OnCreate(Bundle bundle)
 		{
 			base.OnCreate(bundle);
@@ -183,6 +99,92 @@ namespace com.xamarin.googleplus.quickstart
 			}
 		}
 
+		public void OnConnected(Bundle connectionHint)
+		{
+			Log.Info(TAG, "OnConnected");
+
+			_signInButton.Enabled = false;
+			_signOutButton.Enabled = true;
+			_revokeButton.Enabled = true;
+			_signInClicked = false;
+
+			if(!this.IsLoggedInToGoogle())
+			{
+				string account = PlusClass.AccountApi.GetAccountName(_googleApiClient);
+				this.SetGoogleAccount(account);
+				_displayUserInformation = true;
+			}
+
+			if(_displayUserInformation)
+			{
+				DisplayUserInformation();
+				_displayUserInformation = false;
+			}
+		}
+
+		public void OnConnectionSuspended(int cause)
+		{
+			// The connection to Google Play services was lost for some reason.
+			// We call connect() to attempt to re-establish the connection or get a
+			// ConnectionResult that we can attempt to resolve.
+			Log.Debug(TAG, "OnSuspend - trying to reconnect.");
+			_googleApiClient.Connect();
+		}
+
+		public void OnConnectionFailed(ConnectionResult result)
+		{
+			Log.Info(TAG, "OnConnectionFailed: ConnectionResult.ErrorCode = {0}", result.ErrorCode);
+			_connectionResult = result;
+
+			if(_signInClicked)
+			{
+				ResolveSignInError();
+			} else
+			{
+				OnSignedOut();
+			}
+		}
+
+		void DisplayUserInformation()
+		{
+			string account = this.GetGoogleAccount();
+			IPerson currentUser = PlusClass.PeopleApi.GetCurrentPerson(_googleApiClient);
+			_status.Text = String.Format(Resources.GetString(Resource.String.signed_in_as), currentUser.DisplayName, account);
+
+			PlusClass.PeopleApi.LoadVisible(_googleApiClient, null)
+				.SetResultCallback(new DisplayVisibleFriendsResultCallback(this));
+
+			_displayUserInformation = false;
+		}
+
+		protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
+		{
+			switch(requestCode)
+			{
+				case (SIGN_IN_WITH_GOOGLE_PLUS):
+					_intentInProgress = false;
+					if(resultCode == Result.Ok)
+					{
+						_signInClicked = false;
+						Log.Debug(TAG, "Sign in succeeded");
+						if(!_googleApiClient.IsConnecting)
+						{
+							_displayUserInformation = true;
+							_googleApiClient.Connect();
+						}
+					} else
+					{
+						OnSignedOut();
+						Log.Debug(TAG, "Sign in cancelled.");
+					}
+					break;
+				default:
+					OnSignedOut();
+					break;
+			}
+
+		}
+
 		void OnSignedOut()
 		{
 			_signOutButton.Enabled = false;
@@ -239,16 +241,16 @@ namespace com.xamarin.googleplus.quickstart
 			}
 		}
 
-		void DisplayUserInformation()
+
+		public void DisplayFriends(IList<string> names)
 		{
-			string account = this.GetGoogleAccount();
-			IPerson currentUser = PlusClass.PeopleApi.GetCurrentPerson(_googleApiClient);
-			_status.Text = String.Format(Resources.GetString(Resource.String.signed_in_as), currentUser.DisplayName, account);
-
-			PlusClass.PeopleApi.LoadVisible(_googleApiClient, null)
-				.SetResultCallback(new DisplayVisibleFriendsResultCallback(this));
-
-			_displayUserInformation = false;
+			_circlesList = names.ToList();
+			Log.Debug(TAG, "Updating the Circles list with " + _circlesList.Count + " people.");
+			RunOnUiThread(() => {
+				_circlesAdapter = new ArrayAdapter<string>(this, Resource.Layout.CircleMember, _circlesList);
+				_circlesListView.Adapter = _circlesAdapter;
+			});
 		}
+
 	}
 }
