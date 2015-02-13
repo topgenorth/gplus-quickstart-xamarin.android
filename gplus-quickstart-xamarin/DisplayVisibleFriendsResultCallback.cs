@@ -35,7 +35,7 @@ namespace com.xamarin.googleplus.quickstart
 						IPerson person = personBuffer.Get(i).JavaCast<IPerson>();
 						names.Add(person.DisplayName);
 					}
-					_activity.DisplayFriends(names);
+					_activity.DisplayFriendNames(names);
 
 				} finally
 				{

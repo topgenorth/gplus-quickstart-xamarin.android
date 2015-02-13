@@ -47,38 +47,48 @@ namespace com.xamarin.googleplus.quickstart
 			_status = FindViewById<TextView>(Resource.Id.sign_in_status);
 			_circlesListView = FindViewById<ListView>(Resource.Id.circles_list);
 
-			_signInButton.Click += delegate {
-				_status.SetText(Resource.String.status_signing_in);
-				_signInClicked = true;
-				ResolveSignInError();
-			};
+			DisplayFriendNames(new List<string>());
 
-			_signOutButton.Click += delegate {
-				OnSignedOut();
-				if(_googleApiClient.IsConnected)
-				{
-					_googleApiClient.ClearDefaultAccountAndReconnect();
-				}
-			};
+			if(GooglePlayServicesUtil.IsGooglePlayServicesAvailable(this) == ConnectionResult.Success)
+			{
+				_signInButton.Click += delegate {
+					_status.SetText(Resource.String.status_signing_in);
+					_signInClicked = true;
+					ResolveSignInError();
+				};
 
-			_revokeButton.Click += delegate {
-				OnSignedOut();
-				if(_googleApiClient.IsConnected)
-				{
-					_googleApiClient.ClearDefaultAccountAndReconnect();
+				_signOutButton.Click += delegate {
+					if(_googleApiClient.IsConnected)
+					{
+						_googleApiClient.ClearDefaultAccountAndReconnect();
+					}
+					OnSignedOut();
+					_status.SetText(Resource.String.status_signed_out);
+					DisplayFriendNames(new List<string>());
+				};
 
-					PlusClass.AccountApi
+				_revokeButton.Click += delegate {
+					if(_googleApiClient.IsConnected)
+					{
+						_googleApiClient.ClearDefaultAccountAndReconnect();
+
+						PlusClass.AccountApi
 						.RevokeAccessAndDisconnect(_googleApiClient)
 						.SetResultCallback(new GoogleAccountApiAccessRevokedResultCallback(this));
 
-					_googleApiClient.Disconnect();
-					_googleApiClient.Connect();
-
-				}
-			};
-
-			DisplayFriends(new List<string>());
-			_googleApiClient = this.BuildGoogleApiClient();
+						_googleApiClient.Disconnect();
+						_googleApiClient.Connect();
+					}
+					OnSignedOut();
+					_status.SetText(Resource.String.status_revoke_access);
+					DisplayFriendNames(new List<string>());
+				};
+				_googleApiClient = this.BuildGoogleApiClient();
+			} else
+			{
+				Toast.MakeText(this, Resource.String.play_services_error, ToastLength.Short).Show();
+				Finish();
+			}
 		}
 
 		protected override void OnStart()
@@ -117,7 +127,7 @@ namespace com.xamarin.googleplus.quickstart
 
 			if(_displayUserInformation)
 			{
-				DisplayUserInformation();
+				GetFriendsFromGooglePlus();
 				_displayUserInformation = false;
 			}
 		}
@@ -145,15 +155,10 @@ namespace com.xamarin.googleplus.quickstart
 			}
 		}
 
-		void DisplayUserInformation()
+		void GetFriendsFromGooglePlus()
 		{
-			string account = this.GetGoogleAccount();
-			IPerson currentUser = PlusClass.PeopleApi.GetCurrentPerson(_googleApiClient);
-			_status.Text = String.Format(Resources.GetString(Resource.String.signed_in_as), currentUser.DisplayName, account);
-
 			PlusClass.PeopleApi.LoadVisible(_googleApiClient, null)
 				.SetResultCallback(new DisplayVisibleFriendsResultCallback(this));
-
 			_displayUserInformation = false;
 		}
 
@@ -190,14 +195,12 @@ namespace com.xamarin.googleplus.quickstart
 			_signOutButton.Enabled = false;
 			_signInButton.Enabled = true;
 			_revokeButton.Enabled = false;
-			_status.SetText(Resource.String.status_signed_out);
 
 			_signInClicked = false;
 			_displayUserInformation = false;
 			_intentInProgress = false;
-			this.RemoveGoogleAccount();
 
-			DisplayFriends(new List<string>());
+			DisplayFriendNames(new List<string>());
 		}
 
 		void ResolveSignInError()
@@ -241,15 +244,19 @@ namespace com.xamarin.googleplus.quickstart
 			}
 		}
 
-
-		public void DisplayFriends(IList<string> names)
+		public void DisplayFriendNames(IList<string> names)
 		{
+			if((_googleApiClient != null) && (_googleApiClient.IsConnected))
+			{
+				string account = this.GetGoogleAccount();
+				IPerson currentUser = PlusClass.PeopleApi.GetCurrentPerson(_googleApiClient);
+
+				_status.Text = String.Format(GetString(Resource.String.signed_in_as), currentUser.DisplayName, account);
+			}
+
 			_circlesList = names.ToList();
-			Log.Debug(TAG, "Updating the Circles list with " + _circlesList.Count + " people.");
-			RunOnUiThread(() => {
-				_circlesAdapter = new ArrayAdapter<string>(this, Resource.Layout.CircleMember, _circlesList);
-				_circlesListView.Adapter = _circlesAdapter;
-			});
+			_circlesAdapter = new ArrayAdapter<string>(this, Resource.Layout.CircleMember, _circlesList);
+			_circlesListView.Adapter = _circlesAdapter;
 		}
 
 	}

@@ -1564,8 +1564,8 @@ namespace com.xamarin.googleplus.quickstart
 			// aapt resource value: 0x7f0c0022
 			public const int disableHome = 2131492898;
 			
-			// aapt resource value: 0x7f0c005a
-			public const int display_name = 2131492954;
+			// aapt resource value: 0x7f0c0059
+			public const int display_name = 2131492953;
 			
 			// aapt resource value: 0x7f0c001c
 			public const int donate_with_google = 2131492892;
@@ -1621,20 +1621,20 @@ namespace com.xamarin.googleplus.quickstart
 			// aapt resource value: 0x7f0c0017
 			public const int match_parent = 2131492887;
 			
-			// aapt resource value: 0x7f0c005e
-			public const int media_route_control_frame = 2131492958;
+			// aapt resource value: 0x7f0c005d
+			public const int media_route_control_frame = 2131492957;
 			
-			// aapt resource value: 0x7f0c005f
-			public const int media_route_disconnect_button = 2131492959;
+			// aapt resource value: 0x7f0c005e
+			public const int media_route_disconnect_button = 2131492958;
+			
+			// aapt resource value: 0x7f0c005a
+			public const int media_route_list = 2131492954;
 			
 			// aapt resource value: 0x7f0c005b
-			public const int media_route_list = 2131492955;
+			public const int media_route_volume_layout = 2131492955;
 			
 			// aapt resource value: 0x7f0c005c
-			public const int media_route_volume_layout = 2131492956;
-			
-			// aapt resource value: 0x7f0c005d
-			public const int media_route_volume_slider = 2131492957;
+			public const int media_route_volume_slider = 2131492956;
 			
 			// aapt resource value: 0x7f0c002a
 			public const int middle = 2131492906;
@@ -1650,9 +1650,6 @@ namespace com.xamarin.googleplus.quickstart
 			
 			// aapt resource value: 0x7f0c000d
 			public const int normal = 2131492877;
-			
-			// aapt resource value: 0x7f0c0060
-			public const int play_services_error_textview = 2131492960;
 			
 			// aapt resource value: 0x7f0c0012
 			public const int production = 2131492882;
@@ -1725,9 +1722,6 @@ namespace com.xamarin.googleplus.quickstart
 			
 			// aapt resource value: 0x7f0c0056
 			public const int sign_in_status = 2131492950;
-			
-			// aapt resource value: 0x7f0c0059
-			public const int sign_in_xam_auth = 2131492953;
 			
 			// aapt resource value: 0x7f0c0054
 			public const int sign_out_button = 2131492948;
@@ -1867,25 +1861,19 @@ namespace com.xamarin.googleplus.quickstart
 			public const int activity_google_play_services = 2130903063;
 			
 			// aapt resource value: 0x7f030018
-			public const int activity_xamarin_auth = 2130903064;
+			public const int CircleMember = 2130903064;
 			
 			// aapt resource value: 0x7f030019
-			public const int CircleMember = 2130903065;
+			public const int mr_media_route_chooser_dialog = 2130903065;
 			
 			// aapt resource value: 0x7f03001a
-			public const int mr_media_route_chooser_dialog = 2130903066;
+			public const int mr_media_route_controller_dialog = 2130903066;
 			
 			// aapt resource value: 0x7f03001b
-			public const int mr_media_route_controller_dialog = 2130903067;
+			public const int mr_media_route_list_item = 2130903067;
 			
 			// aapt resource value: 0x7f03001c
-			public const int mr_media_route_list_item = 2130903068;
-			
-			// aapt resource value: 0x7f03001d
-			public const int NoGooglePlayServices = 2130903069;
-			
-			// aapt resource value: 0x7f03001e
-			public const int support_simple_spinner_dropdown_item = 2130903070;
+			public const int support_simple_spinner_dropdown_item = 2130903068;
 			
 			static Layout()
 			{
@@ -1970,17 +1958,11 @@ namespace com.xamarin.googleplus.quickstart
 			// aapt resource value: 0x7f07003a
 			public const int activity_google_login_example = 2131165242;
 			
-			// aapt resource value: 0x7f07003b
-			public const int activity_xamarin_auth_example = 2131165243;
-			
 			// aapt resource value: 0x7f070039
 			public const int app_name = 2131165241;
 			
 			// aapt resource value: 0x7f07003c
 			public const int circles_title = 2131165244;
-			
-			// aapt resource value: 0x7f070049
-			public const int close = 2131165257;
 			
 			// aapt resource value: 0x7f070009
 			public const int common_android_wear_notification_needs_update_text = 2131165193;
@@ -2093,11 +2075,8 @@ namespace com.xamarin.googleplus.quickstart
 			// aapt resource value: 0x7f070028
 			public const int mr_user_route_category_name = 2131165224;
 			
-			// aapt resource value: 0x7f070048
-			public const int play_services_error = 2131165256;
-			
-			// aapt resource value: 0x7f07004a
-			public const int profile_picture = 2131165258;
+			// aapt resource value: 0x7f07003b
+			public const int play_services_error = 2131165243;
 			
 			// aapt resource value: 0x7f07003e
 			public const int revoke_access_button_name = 2131165246;
@@ -2105,17 +2084,14 @@ namespace com.xamarin.googleplus.quickstart
 			// aapt resource value: 0x7f07003d
 			public const int sign_out_button_name = 2131165245;
 			
-			// aapt resource value: 0x7f070046
-			public const int signed_in_as = 2131165254;
+			// aapt resource value: 0x7f070045
+			public const int signed_in_as = 2131165253;
 			
 			// aapt resource value: 0x7f070041
 			public const int status_loading = 2131165249;
 			
 			// aapt resource value: 0x7f070044
 			public const int status_revoke_access = 2131165252;
-			
-			// aapt resource value: 0x7f070045
-			public const int status_revoke_access_error = 2131165253;
 			
 			// aapt resource value: 0x7f070040
 			public const int status_sign_in_error = 2131165248;
@@ -2134,9 +2110,6 @@ namespace com.xamarin.googleplus.quickstart
 			
 			// aapt resource value: 0x7f070000
 			public const int store_picture_title = 2131165184;
-			
-			// aapt resource value: 0x7f070047
-			public const int unknown_person = 2131165255;
 			
 			// aapt resource value: 0x7f070022
 			public const int wallet_buy_button_place_holder = 2131165218;
