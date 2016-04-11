@@ -76,8 +76,6 @@ namespace com.xamarin.googleplus.quickstart
 						.RevokeAccessAndDisconnect(_googleApiClient)
 						.SetResultCallback(new GoogleAccountApiAccessRevokedResultCallback(this));
 
-						_googleApiClient.Disconnect();
-						_googleApiClient.Connect();
 					}
 					OnSignedOut();
 					_status.SetText(Resource.String.status_revoke_access);
